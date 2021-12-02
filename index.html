@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Provinces of Panama</title>
+    	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.0/dist/leaflet.css"/>
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.14.0/css/all.css">
+
+    <style>
+ 	html, body, #map { width: 100%; height: 100%; margin: 0; background: #fff; }
+  .legend {
+    line-height: 40px;
+    font-size: 20px;
+    width: 200px;
+    color: #333333;
+    padding: 6px 6px;
+    background: white;
+    background: rgba(255,255,255,0.5);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 10px;
+    font-family: 'Titillium Web', sans-serif;
+}
+
+.legend i {
+    width: 20px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 1;
+}
+
+.legend img {
+    width: 16px;
+    height: 16px;
+    margin-right: 3px;
+    float: left;
+}
+
+.legend p {
+    font-size: 14px;
+    line-height: 20px;
+    margin: 0;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: "whitesmoke";
+    font-family: "Noto Sans", sans-serif;
+    color: #3d3d3d;
+}
+
+h1 {
+  position: absolute;
+  left: 50px;
+  top: 10px;
+  padding: 6px 1.5%;
+  margin: 0;
+  background: rgba(256, 256, 256, .8);
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  border-radius: 2px;
+  font-size: 1.6em;
+  z-index: 800;
+  }
+
+h3 {
+    font-family: "Noto Sans", sans-serif;
+    font-size: 2em;
+    font-weight: normal;
+    text-align: center;
+    margin: 0;
+}
+
+#side-panel {
+    position: absolute;
+    bottom: 20px;
+    left: 15px;
+    width: 230px;
+    margin: 20px auto;
+    padding: 0 15px;
+    background: rgba(256, 256, 256, .8);
+    border: 1px solid grey;
+    border-radius: 3px;
+    z-index: 600;
+}
+
+p {
+    font-size: .9em;
+    line-height: 1.5em;
+}
+
+a {
+    color: #005daa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+    </style>
+  <link href="https://fonts.googleapis.com/css?family=Titillium+Web" rel="stylesheet">
+	<script src="https://unpkg.com/leaflet@1.7.0/dist/leaflet.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-ajax/2.1.0/leaflet.ajax.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/1.3.4/chroma.min.js"></script>
+
+</head>
+<body>
+<div id="map"></div>
+<h1>The 13 Beautiful Provinces of Panama</h1>
+
+<section id="side-panel">
+
+  <h3>Why Panama?</h3>
+  <div id='legend'>
+      <div id="legend-large"></div>
+      <div id="legend-small"></div>
+      <div id="legend-large-label"></div>
+      <div id="legend-small-label"></div>
+  </div>
+  <p>Located at the tail end of Central America, Panama is a diverse country that is the home of 4 million. Bisected by the famous Panama Canal, Panama boasts one of the most well developed economies and tourism sectors in Latin America. Panama has a wide range of destinations that appeal to all kinds of travelers. Whether you are interested in the biodiverse tropical rainforests, the beautiful beaches and islands of the Pacific or Caribbean, or the nation's rich and well preserved cultural traditions - Panama's 13 provinces have a little something for every traveler!
+  <p>You can learn more about visiting Panama by reading <a href="https://www.touropia.com/provinces-regions-in-panama/">our full article on Touropia</a></a>.
+
+</section>
+<script>
+
+  var mymap = L.map('map', {
+      center: [9.106122283126519, -79.68846583563973],
+      zoom: 7,
+      detectRetina: true
+  });
+
+  L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.png').addTo(mymap);
+
+
+var destinations = null;
+
+var colors = chroma.scale('PuOr').mode('lch').colors(2);
+
+
+for (i = 0; i < 2; i++) {
+    $('head').append($("<style> .marker-color-" + (i + 1).toString() + " { color: " + colors[i] + "; font-size: 15px; text-shadow: 0 0 3px #ffffff;} </style>"));
+}
+
+destinations = L.geoJson.ajax("assets/map.geojson",{
+
+
+  onEachFeature: function (feature, layer) {
+      layer.bindPopup("Destination: " + feature.properties.Name + "<br>" +
+          "Province: " + feature.properties.Province + "<br>" +
+              "Rating: " + feature.properties.Rating);
+  },
+
+  pointToLayer: function(feature, latlng) {
+      var id = 0;
+      if (feature.properties.Type = "Null") { id = 0; }
+      else { id = 1; }
+      return L.marker(latlng, {icon: L.divIcon({className: 'fas fa-star marker-color-' + (id + 1).toString() })})
+  },
+    attribution: 'Data: Tripadvisor.com | Base Map: CartoDB | Map Author: Jacob Wallace'
+}).addTo(mymap);
+
+colors = chroma.scale('Purples').colors(3);
+
+
+function setColor(Rate) {
+    var id = 0;
+    if (Rate > 0 && Rate <= 4.1) { id = 0; }
+    else if (Rate > 4.2 && Rate <= 4.45) { id = 1; }
+    else if (Rate > 4.46 && Rate <= 5.1) { id = 2; }
+    return colors[id];
+}
+
+function style(feature) {
+    return {
+        fillColor: setColor(feature.properties.ratings_TotalRating),
+        fillOpacity: 0.8,
+        weight: 1.8,
+        opacity: 1,
+        color: '#b4b4b4',
+    };
+}
+
+L.geoJson.ajax("assets/provinces.geojson", {
+    style: style
+}).addTo(mymap);
+
+var legend = L.control({position: 'topright'});
+
+legend.onAdd = function () {
+
+    var div = L.DomUtil.create('div', 'legend');
+    div.innerHTML += '<b>Tripadvisor Score</b><br />';
+    div.innerHTML += '<i style="background: ' + colors[2] + '; opacity: 0.8"></i><p>4.5 ></p>';
+    div.innerHTML += '<i style="background: ' + colors[1] + '; opacity: 0.8"></i><p>4.2- 4.49</p>';
+    div.innerHTML += '<i style="background: ' + colors[0] + '; opacity: 0.8"></i><p>< 4.1</p>';
+      div.innerHTML += '<i class="fas fa-star marker-color-1"></i><p>Popular Destination</p>';
+    return div;
+};
+
+legend.addTo(mymap);
+
+L.control.scale({position: 'bottomleft'}).addTo(mymap);
+
+</script>
+</body>
+</html>
